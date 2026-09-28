@@ -1,0 +1,2 @@
+import { notFound } from "next/navigation"; import { prisma } from "@/lib/prisma"; import { AdminShell } from "@/components/admin-shell"; import { DownloadForm } from "@/components/phase-two-forms";
+export default async function EditDownload({params}:{params:Promise<{id:string}>}){const {id}=await params; const item=await prisma.download.findUnique({where:{id}}); if(!item) notFound(); return <AdminShell title="Edit download"><DownloadForm item={item}/></AdminShell>;}

@@ -1,0 +1,1 @@
+import { prisma } from "@/lib/prisma"; import { AdminContentModule } from "@/components/admin-content-module"; export default async function Activities(){const records=await prisma.coCurricularActivity.findMany({orderBy:{sortOrder:"asc"}});return <AdminContentModule model="co-curricular" records={records as unknown as Array<Record<string,unknown>>}/>;}

@@ -1,0 +1,1 @@
+import { prisma } from "@/lib/prisma"; import { AdminContentModule } from "@/components/admin-content-module"; export default async function Subjects(){const records=await prisma.subject.findMany({orderBy:{sortOrder:"asc"}});return <AdminContentModule model="subjects" records={records as unknown as Array<Record<string,unknown>>}/>;}

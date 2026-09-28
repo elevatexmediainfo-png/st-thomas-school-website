@@ -1,0 +1,1 @@
+import { AdminShell } from "@/components/admin-shell"; import { DownloadForm } from "@/components/phase-two-forms"; export default function NewDownloadPage(){return <AdminShell title="Add download"><DownloadForm/></AdminShell>;}

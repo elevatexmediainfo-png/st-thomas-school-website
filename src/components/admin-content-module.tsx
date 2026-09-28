@@ -1,0 +1,16 @@
+import { AdminShell, AdminTableEmpty } from "@/components/admin-shell";
+import { saveContent, deleteContent } from "@/app/admin/content-actions";
+import { AdminDeleteButton } from "@/components/admin-delete-button";
+import type { ReactNode } from "react";
+
+const configs: Record<string, { title: string; fields: [string, string][] }> = {
+	calendar: { title: "School Calendar", fields: [["title", "Title"], ["startDate", "Start date"], ["endDate", "End date"], ["category", "Category"], ["venue", "Venue"], ["description", "Description"]] },
+	"academic-calendar": { title: "Academic Calendar", fields: [["title", "Entry title"], ["entryType", "Entry type"], ["sessionName", "Session"], ["startDate", "Start date"], ["endDate", "End date"], ["classes", "Classes"], ["description", "Description"], ["sortOrder", "Display order"]] },
+	subjects: { title: "Subjects", fields: [["name", "Subject name"], ["shortName", "Short name / code"], ["className", "Class / grade"], ["department", "Department / category"], ["description", "Description"], ["sortOrder", "Display order"]] },
+	"co-curricular": { title: "Co-curricular Activities", fields: [["name", "Activity name"], ["category", "Category"], ["description", "Description"], ["imageUrl", "Image URL"], ["ageGroup", "Age / class group"], ["sortOrder", "Display order"]] },
+	sports: { title: "Sports", fields: [["name", "Sport name"], ["category", "Category"], ["description", "Description"], ["imageUrl", "Image URL"], ["ageGroup", "Age / class group"], ["sortOrder", "Display order"]] },
+	faculty: { title: "Faculty & Staff", fields: [["fullName", "Full name"], ["designation", "Designation"], ["department", "Department"], ["subject", "Subject"], ["category", "Staff category"], ["qualification", "Qualification"], ["photoUrl", "Photo URL"], ["description", "Biography"], ["sortOrder", "Display order"]] },
+	facilities: { title: "Campus Facilities", fields: [["name", "Facility name"], ["category", "Category"], ["description", "Description"], ["imageUrl", "Image URL"], ["sortOrder", "Display order"]] },
+};
+export function AdminContentModule({model,records,extraContent}:{model:string;records:Array<Record<string,unknown>>;extraContent?:ReactNode}){const config=configs[model];return <AdminShell title={config.title} description="Editable records are stored in PostgreSQL.">{extraContent}<form className="admin-form" action={saveContent}><input type="hidden" name="model" value={model}/><div className="admin-form-grid">{config.fields.map(([name,label])=><label key={name}>{label}<input name={name}/></label>)}</div><label className="admin-checkboxes"><input type="checkbox" name="published"/> Published</label><button className="button button-dark">Create record</button></form>{records.length?<div className="admin-table-wrap"><table className="admin-table"><tbody>{records.map((record)=><tr key={String(record.id)}><td><strong>{String(record.title??record.name??record.fullName)}</strong><small>{String(record.category??record.className??record.designation??"")}</small></td><td><input type="hidden" name="model" value={model}/><AdminDeleteButton action={deleteContent} model={model} id={String(record.id)} label={String(record.title??record.name??record.fullName)}/></td></tr>)}</tbody></table></div>:<AdminTableEmpty message={`No ${config.title.toLowerCase()} records yet.`}/>}</AdminShell>}
+

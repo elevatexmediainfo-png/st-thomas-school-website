@@ -1,0 +1,1 @@
+import { prisma } from "@/lib/prisma"; import { AdminContentModule } from "@/components/admin-content-module"; export default async function AcademicCalendar(){const records=await prisma.academicCalendarEntry.findMany({orderBy:{sortOrder:"asc"}});return <AdminContentModule model="academic-calendar" records={records as unknown as Array<Record<string,unknown>>}/>;}

@@ -1,0 +1,23 @@
+"use server";
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
+import { auth } from "@/auth";
+import { prisma } from "@/lib/prisma";
+import { $Enums } from "@/generated/prisma/client";
+
+async function admin() { if (!(await auth())?.user) redirect("/admin/login"); }
+const s=(v:FormDataEntryValue|null)=>typeof v==="string"?v.trim():"";
+const opt=(v:FormDataEntryValue|null)=>s(v)||null;
+const date=(v:FormDataEntryValue|null)=>{const x=s(v);if(!x)return null;const d=new Date(x);return Number.isNaN(d.getTime())?null:d;};
+const published=(f:FormData): $Enums.PublicationStatus=>f.get("published")==="on"?$Enums.PublicationStatus.PUBLISHED:$Enums.PublicationStatus.DRAFT;
+export async function saveContent(f:FormData){await admin();const model=s(f.get("model"));const id=opt(f.get("id"));const base={title:s(f.get("title")),name:s(f.get("name")),description:opt(f.get("description")),status:published(f)};if(model==="calendar"){const data={title:base.title,startDate:date(f.get("startDate"))??new Date(),endDate:date(f.get("endDate")),category:(s(f.get("category"))||"OTHER") as $Enums.CalendarCategory,description:base.description,venue:opt(f.get("venue")),isImportant:f.get("important")==="on",status:base.status}; id?await prisma.schoolCalendarItem.update({where:{id},data}):await prisma.schoolCalendarItem.create({data});revalidatePath("/admin/calendar");}
+else if(model==="academic-calendar"){const data={entryType:(s(f.get("entryType"))||"SESSION") as $Enums.AcademicEntryType,title:base.title,sessionName:opt(f.get("sessionName")),startDate:date(f.get("startDate")),endDate:date(f.get("endDate")),classes:opt(f.get("classes")),description:base.description,sortOrder:Number(s(f.get("sortOrder")))||0,status:base.status};id?await prisma.academicCalendarEntry.update({where:{id},data}):await prisma.academicCalendarEntry.create({data});revalidatePath("/admin/academic-calendar");}else if(model==="subjects"){const data={name:s(f.get("name")),shortName:opt(f.get("shortName")),className:opt(f.get("className")),department:opt(f.get("department")),description:base.description,sortOrder:Number(s(f.get("sortOrder")))||0,status:base.status};id?await prisma.subject.update({where:{id},data}):await prisma.subject.create({data});revalidatePath("/admin/subjects");}
+else if(model==="co-curricular"){const data={name:s(f.get("name")),category:s(f.get("category")),description:base.description,imageUrl:opt(f.get("imageUrl")),ageGroup:opt(f.get("ageGroup")),sortOrder:Number(s(f.get("sortOrder")))||0,status:base.status};id?await prisma.coCurricularActivity.update({where:{id},data}):await prisma.coCurricularActivity.create({data});revalidatePath("/admin/co-curricular");}
+else if(model==="sports"){const data={name:s(f.get("name")),category:s(f.get("category")),description:base.description,imageUrl:opt(f.get("imageUrl")),ageGroup:opt(f.get("ageGroup")),sortOrder:Number(s(f.get("sortOrder")))||0,status:base.status};id?await prisma.sport.update({where:{id},data}):await prisma.sport.create({data});revalidatePath("/admin/sports");}
+else if(model==="faculty"){const data={fullName:s(f.get("fullName")),designation:s(f.get("designation")),department:opt(f.get("department")),subject:opt(f.get("subject")),category:(s(f.get("category"))||"TEACHING_FACULTY") as $Enums.FacultyCategory,qualification:opt(f.get("qualification")),photoUrl:opt(f.get("photoUrl")),biography:base.description,sortOrder:Number(s(f.get("sortOrder")))||0,status:base.status};id?await prisma.facultyMember.update({where:{id},data}):await prisma.facultyMember.create({data});revalidatePath("/admin/faculty");revalidatePath("/administration/faculty-staff");}
+else if(model==="facilities"){const data={name:s(f.get("name")),category:s(f.get("category")),description:base.description,imageUrl:opt(f.get("imageUrl")),sortOrder:Number(s(f.get("sortOrder")))||0,status:base.status};id?await prisma.facility.update({where:{id},data}):await prisma.facility.create({data});revalidatePath("/admin/facilities");revalidatePath("/campus-facilities");}
+redirect(`/admin/${model}`);}
+export async function deleteContent(f:FormData){await admin();const model=s(f.get("model"));const id=s(f.get("id"));if(model==="calendar")await prisma.schoolCalendarItem.delete({where:{id}});if(model==="academic-calendar")await prisma.academicCalendarEntry.delete({where:{id}});if(model==="subjects")await prisma.subject.delete({where:{id}});if(model==="co-curricular")await prisma.coCurricularActivity.delete({where:{id}});if(model==="sports")await prisma.sport.delete({where:{id}});if(model==="faculty")await prisma.facultyMember.delete({where:{id}});if(model==="facilities")await prisma.facility.delete({where:{id}});revalidatePath(`/admin/${model}`);}
+
+
+
