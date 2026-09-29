@@ -32,19 +32,15 @@ The script hashes the password with bcrypt before storage, takes a PostgreSQL ad
 
 ## Media Storage
 
-No media storage provider or credentials are currently configured. `src/lib/media-storage.ts` defines the provider-neutral `MediaStorage` interface (`upload` and `delete`), and `/api/admin/media` is authenticated, validates image type/size and storage keys, and returns HTTP 503 while no provider adapter is installed. It never writes files locally.
+Cloudinary is the configured media provider when all three server-only variables are present:
 
-To enable uploads later, select an S3-compatible provider and implement its adapter in `getMediaStorage()` without exposing credentials to the browser. Configure server-only variables:
+- `CLOUDINARY_CLOUD_NAME`
+- `CLOUDINARY_API_KEY`
+- `CLOUDINARY_API_SECRET`
 
-- `MEDIA_STORAGE_PROVIDER` (for example, `s3-compatible`)
-- `MEDIA_STORAGE_BUCKET`
-- `MEDIA_STORAGE_REGION`
-- `MEDIA_STORAGE_ENDPOINT` (provider endpoint, when required)
-- `MEDIA_STORAGE_ACCESS_KEY_ID`
-- `MEDIA_STORAGE_SECRET_ACCESS_KEY`
-- `MEDIA_STORAGE_PUBLIC_BASE_URL` (or replace public URLs with an authenticated/signed URL strategy)
+Never expose these variables to browser code or prefix them with `NEXT_PUBLIC_`. The adapter stores images under controlled `school/<UUID>.<extension>` keys and maps them to Cloudinary public IDs under the `school/` prefix. Users cannot choose arbitrary public IDs. The API supports JPEG, PNG, WebP, and AVIF uploads up to 8 MB, verifies file signatures, and accepts same-origin authenticated requests only. Manual HTTPS URLs remain supported even when Cloudinary is not configured. If any Cloudinary variable is missing, uploads return HTTP 503 and no file is stored.
 
-Use a private bucket and an explicit public-delivery policy appropriate to school photos. Never commit these values. The API currently supports JPEG, PNG, WebP, and AVIF uploads up to 8 MB, verifies file signatures, and accepts same-origin authenticated requests only. Image URL/key/alt-text columns are optional; empty images continue to render neutral placeholders. Replacement cleanup runs after record saves; cleanup failures are logged without exposing object keys and may require provider-side/manual cleanup.
+Create a Cloudinary account and configure the three variables in the Vercel server environment. Use a dedicated Cloudinary folder/policy for school media and review delivery/privacy settings for school photos. Replacement cleanup runs after record saves; cleanup failures are logged without exposing object keys and may require provider-side/manual cleanup.
 
 ## Security and QA Notes
 

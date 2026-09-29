@@ -234,6 +234,27 @@ model SchoolSetting {
   principalPhotoUrl    String?
   principalPhotoKey    String?
   principalPhotoAlt    String?
+  heroImageUrl         String?
+  heroImageKey         String?
+  heroImageAlt         String?
+  introImageUrl        String?
+  introImageKey        String?
+  introImageAlt        String?
+  galleryImageOneUrl   String?
+  galleryImageOneKey   String?
+  galleryImageOneAlt   String?
+  galleryImageTwoUrl   String?
+  galleryImageTwoKey   String?
+  galleryImageTwoAlt   String?
+  galleryImageThreeUrl String?
+  galleryImageThreeKey String?
+  galleryImageThreeAlt String?
+  galleryImageFourUrl  String?
+  galleryImageFourKey  String?
+  galleryImageFourAlt  String?
+  galleryImageFiveUrl  String?
+  galleryImageFiveKey  String?
+  galleryImageFiveAlt  String?
   principalDeskTitle   String?
   sportsMessage           String?
   sportsMessageAuthorName String?

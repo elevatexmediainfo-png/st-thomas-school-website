@@ -202,6 +202,8 @@ h1 em, h2 em { color: var(--coral); font-style: italic; }
 .text-link { border-bottom: 1px solid var(--coral); display: inline-flex; font-size: 11px; font-weight: bold; gap: 16px; letter-spacing: .07em; margin-top: 14px; padding-bottom: 7px; text-transform: uppercase; }
 .text-link span { color: var(--coral); font-size: 17px; }
 .intro-art { align-items: center; background: var(--sage); color: var(--forest); display: flex; flex-direction: column; height: 185px; justify-content: center; margin-top: 45px; position: relative; }
+.intro-art.has-image { background-position: center; background-size: cover; }
+.intro-art.has-image:before { background: linear-gradient(transparent, rgba(16,31,27,.28)); border: 0; }
 .intro-art:before { border: 1px solid rgba(24,61,54,.3); content: ""; inset: 10px; position: absolute; }
 .intro-art span { font-family: Georgia, serif; font-size: 65px; letter-spacing: -.16em; margin-left: -10px; }
 .intro-art small { font-size: 9px; letter-spacing: .12em; margin-top: 8px; text-transform: uppercase; }
