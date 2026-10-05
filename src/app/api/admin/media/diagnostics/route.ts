@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
 import { v2 as cloudinary } from "cloudinary";
 import { guardAdminRequest } from "@/lib/admin-api";
+import { getMediaStorage } from "@/lib/media-storage";
 
 // TEMPORARY: remove after the Cloudinary signature problem is diagnosed.
 export const runtime = "nodejs";
@@ -57,6 +58,27 @@ export async function GET(request: Request) {
   if (denied) return denied;
 
   const mode = new URL(request.url).searchParams.get("upload");
+  if (mode === "adapter") {
+    const storage = getMediaStorage();
+    if (!storage) return NextResponse.json({ error: "Media storage is not configured." }, { status: 503, headers: { "Cache-Control": "no-store" } });
+    const results: Record<string, { httpCode?: number; message?: string }> = {};
+    for (const [label, extension] of [["png", "png"], ["jpeg", "jpg"], ["webp", "webp"], ["avif", "avif"]] as const) {
+      const key = `school/${randomUUID()}.${extension}`;
+      try {
+        await storage.upload({ key, bytes: new Uint8Array(tinyPng), contentType: `image/${label}`, altText: "" });
+      } catch (error) {
+        results[label] = errorInfo(error);
+        continue;
+      }
+      try {
+        await storage.delete(key);
+        results[label] = { httpCode: 200, message: "Upload succeeded; test asset deleted" };
+      } catch {
+        results[label] = { httpCode: 200, message: "Upload succeeded; test asset deletion failed" };
+      }
+    }
+    return NextResponse.json(results, { headers: { "Cache-Control": "no-store" } });
+  }
   if (mode === "variants") {
     cloudinary.config({
       cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
