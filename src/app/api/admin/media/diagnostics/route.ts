@@ -30,12 +30,12 @@ function errorInfo(error: unknown) {
   };
 }
 
-async function uploadTest(algorithm: "sha1" | "sha256") {
+async function uploadTest(algorithm: "sha1" | "sha256" | undefined, extra: Record<string, boolean> = {}) {
   cloudinary.config({ signature_algorithm: algorithm });
   const publicId = `school/diagnostic-${randomUUID()}`;
   try {
     await new Promise<void>((resolve, reject) => {
-      const stream = cloudinary.uploader.upload_stream({ public_id: publicId, resource_type: "image", overwrite: false }, (error, response) => {
+      const stream = cloudinary.uploader.upload_stream({ public_id: publicId, resource_type: "image", overwrite: false, ...extra }, (error, response) => {
         if (error || !response) reject(error ?? new Error("No response"));
         else resolve();
       });
@@ -56,7 +56,21 @@ export async function GET(request: Request) {
   const denied = await guardAdminRequest(request, { checkOrigin: false });
   if (denied) return denied;
 
-  if (new URL(request.url).searchParams.get("upload") === "1") {
+  const mode = new URL(request.url).searchParams.get("upload");
+  if (mode === "variants") {
+    cloudinary.config({
+      cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+      api_key: process.env.CLOUDINARY_API_KEY,
+      api_secret: process.env.CLOUDINARY_API_SECRET,
+      secure: true,
+    });
+    const exactRealOptions = await uploadTest(undefined, { unique_filename: false, use_filename: false });
+    const withoutUniqueAndUseFilename = await uploadTest(undefined);
+    const onlyUniqueFilenameFalse = await uploadTest(undefined, { unique_filename: false });
+    const onlyUseFilenameFalse = await uploadTest(undefined, { use_filename: false });
+    return NextResponse.json({ exactRealOptions, withoutUniqueAndUseFilename, onlyUniqueFilenameFalse, onlyUseFilenameFalse }, { headers: { "Cache-Control": "no-store" } });
+  }
+  if (mode === "1") {
     cloudinary.config({
       cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
       api_key: process.env.CLOUDINARY_API_KEY,
