@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
 import { v2 as cloudinary } from "cloudinary";
 import { guardAdminRequest } from "@/lib/admin-api";
@@ -18,9 +19,55 @@ function describe(value: string | undefined) {
   };
 }
 
+const tinyPng = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==", "base64");
+
+function errorInfo(error: unknown) {
+  const details = (typeof error === "object" && error !== null ? error : {}) as { http_code?: unknown; message?: unknown; error?: { http_code?: unknown; message?: unknown } };
+  const inner = details.error ?? details;
+  return {
+    httpCode: typeof inner.http_code === "number" ? inner.http_code : undefined,
+    message: typeof inner.message === "string" ? inner.message.slice(0, 200) : undefined,
+  };
+}
+
+async function uploadTest(algorithm: "sha1" | "sha256") {
+  cloudinary.config({ signature_algorithm: algorithm });
+  const publicId = `school/diagnostic-${randomUUID()}`;
+  try {
+    await new Promise<void>((resolve, reject) => {
+      const stream = cloudinary.uploader.upload_stream({ public_id: publicId, resource_type: "image", overwrite: false }, (error, response) => {
+        if (error || !response) reject(error ?? new Error("No response"));
+        else resolve();
+      });
+      stream.end(tinyPng);
+    });
+  } catch (error) {
+    return errorInfo(error);
+  }
+  try {
+    await cloudinary.uploader.destroy(publicId, { resource_type: "image", invalidate: true });
+    return { httpCode: 200, message: "Upload succeeded; test asset deleted" };
+  } catch {
+    return { httpCode: 200, message: "Upload succeeded; test asset deletion failed" };
+  }
+}
+
 export async function GET(request: Request) {
   const denied = await guardAdminRequest(request, { checkOrigin: false });
   if (denied) return denied;
+
+  if (new URL(request.url).searchParams.get("upload") === "1") {
+    cloudinary.config({
+      cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+      api_key: process.env.CLOUDINARY_API_KEY,
+      api_secret: process.env.CLOUDINARY_API_SECRET,
+      secure: true,
+    });
+    const sha1 = await uploadTest("sha1");
+    const sha256 = await uploadTest("sha256");
+    cloudinary.config({ signature_algorithm: undefined });
+    return NextResponse.json({ sha1, sha256 }, { headers: { "Cache-Control": "no-store" } });
+  }
 
   const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
   const apiKey = process.env.CLOUDINARY_API_KEY;
