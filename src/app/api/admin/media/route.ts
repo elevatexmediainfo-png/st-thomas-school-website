@@ -38,7 +38,9 @@ export async function POST(request: Request) {
   let uploaded: Awaited<ReturnType<typeof storage.upload>>;
   try {
     uploaded = await storage.upload({ key, bytes, contentType: file.type, altText });
-  } catch {
+  } catch (error) {
+    const details = (typeof error === "object" && error !== null ? error : {}) as { http_code?: unknown; message?: unknown };
+    console.error("Media upload failed", { httpCode: typeof details.http_code === "number" ? details.http_code : undefined, message: typeof details.message === "string" ? details.message.slice(0, 300) : undefined });
     return NextResponse.json({ error: "The media provider could not store this image." }, { status: 502 });
   }
   return NextResponse.json({ key: uploaded.key, url: uploaded.url, altText });
