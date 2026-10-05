@@ -36,6 +36,8 @@ export async function POST(request: Request) {
   const extension = file.type.split("/")[1].replace("jpeg", "jpg");
   const key = `school/${randomUUID()}.${extension}`;
   let uploaded: Awaited<ReturnType<typeof storage.upload>>;
+  // TEMPORARY diagnostics: no secrets, no file contents.
+  console.info("Media upload attempt", { filename: file.name.slice(0, 80), mime: file.type, size: file.size, byteLength: bytes.length, keyFormat: key.replace(/[0-9a-f-]{36}/, "<uuid>"), fieldNames: Array.from(new Set(Array.from(form.keys()))), enteringUpload: true });
   try {
     uploaded = await storage.upload({ key, bytes, contentType: file.type, altText });
   } catch (error) {
