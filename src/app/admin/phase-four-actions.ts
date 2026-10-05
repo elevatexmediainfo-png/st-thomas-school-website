@@ -6,7 +6,7 @@ import { auth } from "@/auth";
 import { $Enums } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import { isSafeMediaReference } from "@/lib/media-validation";
-import { removeReplacedMedia } from "@/lib/media-cleanup";
+import { removeReplacedMedia, removeUnreferencedGalleryMedia } from "@/lib/media-cleanup";
 
 async function requireAdmin() {
 	if (!(await auth())?.user) redirect("/admin/login");
@@ -84,7 +84,7 @@ export async function saveGalleryItem(form: FormData) {
 	if (id) {
 		const existing = await prisma.galleryPhoto.findUnique({ where: { id }, select: { imageKey: true } });
 		await prisma.galleryPhoto.update({ where: { id }, data: { caption, sortOrder, status, imageUrl, imageKey, altText } });
-		await removeReplacedMedia(existing?.imageKey ?? null, imageKey);
+		await removeUnreferencedGalleryMedia(existing?.imageKey && existing.imageKey !== imageKey ? existing.imageKey : null);
 	} else await prisma.galleryPhoto.create({ data: { albumId, caption, sortOrder, status, imageUrl, imageKey, altText } });
 	revalidatePath("/admin/gallery");
 	revalidatePath(`/admin/gallery/${albumId}`);
@@ -99,7 +99,7 @@ export async function deleteGalleryItem(form: FormData) {
 	if (id) {
 		const existing = await prisma.galleryPhoto.findUnique({ where: { id }, select: { imageKey: true } });
 		await prisma.galleryPhoto.delete({ where: { id } });
-		await removeReplacedMedia(existing?.imageKey ?? null, null);
+		await removeUnreferencedGalleryMedia(existing?.imageKey ?? null);
 	}
 	revalidatePath("/admin/gallery");
 	if (albumId) revalidatePath(`/admin/gallery/${albumId}`);

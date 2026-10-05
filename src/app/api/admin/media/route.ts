@@ -1,21 +1,12 @@
 import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
+import { isSameOrigin } from "@/lib/admin-api";
 import { getMediaStorage, safeMediaKey } from "@/lib/media-storage";
 
 export const runtime = "nodejs";
 const maxBytes = 8 * 1024 * 1024;
 const allowedTypes = new Set(["image/jpeg", "image/png", "image/webp", "image/avif"]);
-
-function isSameOrigin(request: Request) {
-  const origin = request.headers.get("origin");
-  if (!origin) return false;
-  try {
-    return new URL(origin).origin === new URL(request.url).origin;
-  } catch {
-    return false;
-  }
-}
 
 function matchesImageType(bytes: Uint8Array, contentType: string) {
   if (contentType === "image/jpeg") return bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff;

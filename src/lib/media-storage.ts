@@ -64,6 +64,24 @@ export function getMediaStorage(): MediaStorage | null {
   return new CloudinaryMediaStorage();
 }
 
+export function isManagedMediaKey(key: string) {
+  return cloudinaryKeyPattern.test(key);
+}
+
+// Only accept URLs that point at this deployment's Cloudinary account and match the stored media key.
+export function isTrustedMediaUrl(url: string, key: string) {
+  const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+  if (!cloudName || !isManagedMediaKey(key)) return false;
+  try {
+    const parsed = new URL(url);
+    const publicId = key.replace(/\.[^.]+$/, "");
+    return parsed.protocol === "https:" && parsed.hostname === "res.cloudinary.com" && !parsed.search && !parsed.hash
+      && parsed.pathname.startsWith(`/${cloudName}/image/upload/`) && parsed.pathname.includes(`/${publicId}.`);
+  } catch {
+    return false;
+  }
+}
+
 export function safeMediaKey(value: string) {
   return /^[a-zA-Z0-9/_-]{1,240}$/.test(value) && !value.split("/").includes("..");
 }
