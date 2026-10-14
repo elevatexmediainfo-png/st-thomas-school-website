@@ -11,5 +11,5 @@ export function isSafeMediaUrl(value: string | null) {
 export function isSafeMediaReference(url: string | null, key: string | null) {
 	if (!isSafeMediaUrl(url)) return false;
 	if (!key) return true;
-	return Boolean(url) && /^school\/[a-zA-Z0-9/_-]{1,240}$/.test(key) && !key.split("/").includes("..");
+	return Boolean(url) && /^school\/[a-zA-Z0-9/._-]{1,240}$/.test(key) && !key.split("/").includes("..");
 }

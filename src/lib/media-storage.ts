@@ -83,5 +83,5 @@ export function isTrustedMediaUrl(url: string, key: string) {
 }
 
 export function safeMediaKey(value: string) {
-  return /^[a-zA-Z0-9/_-]{1,240}$/.test(value) && !value.split("/").includes("..");
+  return /^[a-zA-Z0-9/._-]{1,240}$/.test(value) && !value.split("/").includes("..");
 }

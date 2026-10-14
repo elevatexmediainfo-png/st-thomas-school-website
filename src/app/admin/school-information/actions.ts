@@ -15,11 +15,6 @@ const limits = {
 	history: 12000,
 } as const;
 
-const optional = (formData: FormData, name: string) => {
-	const entry = formData.get(name);
-	return typeof entry === "string" && entry.trim() ? entry.trim() : null;
-};
-
 export async function updateSchoolInformation(formData: FormData) {
 	if (!(await auth())?.user) redirect("/admin/login");
 
@@ -33,17 +28,55 @@ export async function updateSchoolInformation(formData: FormData) {
 	const mission = value("mission");
 	const history = value("history");
 	const values = { schoolName, location, vision, mission, history };
+	const previous = await prisma.schoolSetting.findUnique({
+		where: { id: "school" },
+		select: {
+			heroImageUrl: true, heroImageKey: true, heroImageAlt: true,
+			introImageUrl: true, introImageKey: true, introImageAlt: true,
+			principalPhotoUrl: true, principalPhotoKey: true, principalPhotoAlt: true,
+			galleryImageOneUrl: true, galleryImageOneKey: true, galleryImageOneAlt: true,
+			galleryImageTwoUrl: true, galleryImageTwoKey: true, galleryImageTwoAlt: true,
+			galleryImageThreeUrl: true, galleryImageThreeKey: true, galleryImageThreeAlt: true,
+			galleryImageFourUrl: true, galleryImageFourKey: true, galleryImageFourAlt: true,
+			galleryImageFiveUrl: true, galleryImageFiveKey: true, galleryImageFiveAlt: true,
+		},
+	});
+
+	const fieldOrPrevious = (name: string, fallback: string | null = null) => {
+		if (!formData.has(name)) return fallback;
+		const entry = formData.get(name);
+		return typeof entry === "string" && entry.trim() ? entry.trim() : null;
+	};
+
 	const media = {
-		heroImageUrl: optional(formData, "heroImageUrl"), heroImageKey: optional(formData, "heroImageKey"), heroImageAlt: optional(formData, "heroImageAlt"),
-		introImageUrl: optional(formData, "introImageUrl"), introImageKey: optional(formData, "introImageKey"), introImageAlt: optional(formData, "introImageAlt"),
-		galleryImageOneUrl: optional(formData, "galleryImageOneUrl"), galleryImageOneKey: optional(formData, "galleryImageOneKey"), galleryImageOneAlt: optional(formData, "galleryImageOneAlt"),
-		galleryImageTwoUrl: optional(formData, "galleryImageTwoUrl"), galleryImageTwoKey: optional(formData, "galleryImageTwoKey"), galleryImageTwoAlt: optional(formData, "galleryImageTwoAlt"),
-		galleryImageThreeUrl: optional(formData, "galleryImageThreeUrl"), galleryImageThreeKey: optional(formData, "galleryImageThreeKey"), galleryImageThreeAlt: optional(formData, "galleryImageThreeAlt"),
-		galleryImageFourUrl: optional(formData, "galleryImageFourUrl"), galleryImageFourKey: optional(formData, "galleryImageFourKey"), galleryImageFourAlt: optional(formData, "galleryImageFourAlt"),
-		galleryImageFiveUrl: optional(formData, "galleryImageFiveUrl"), galleryImageFiveKey: optional(formData, "galleryImageFiveKey"), galleryImageFiveAlt: optional(formData, "galleryImageFiveAlt"),
+		heroImageUrl: fieldOrPrevious("heroImageUrl", previous?.heroImageUrl ?? null),
+		heroImageKey: fieldOrPrevious("heroImageKey", previous?.heroImageKey ?? null),
+		heroImageAlt: fieldOrPrevious("heroImageAlt", previous?.heroImageAlt ?? null),
+		introImageUrl: fieldOrPrevious("introImageUrl", previous?.introImageUrl ?? null),
+		introImageKey: fieldOrPrevious("introImageKey", previous?.introImageKey ?? null),
+		introImageAlt: fieldOrPrevious("introImageAlt", previous?.introImageAlt ?? null),
+		principalPhotoUrl: fieldOrPrevious("principalPhotoUrl", previous?.principalPhotoUrl ?? null),
+		principalPhotoKey: fieldOrPrevious("principalPhotoKey", previous?.principalPhotoKey ?? null),
+		principalPhotoAlt: fieldOrPrevious("principalPhotoAlt", previous?.principalPhotoAlt ?? null),
+		galleryImageOneUrl: fieldOrPrevious("galleryImageOneUrl", previous?.galleryImageOneUrl ?? null),
+		galleryImageOneKey: fieldOrPrevious("galleryImageOneKey", previous?.galleryImageOneKey ?? null),
+		galleryImageOneAlt: fieldOrPrevious("galleryImageOneAlt", previous?.galleryImageOneAlt ?? null),
+		galleryImageTwoUrl: fieldOrPrevious("galleryImageTwoUrl", previous?.galleryImageTwoUrl ?? null),
+		galleryImageTwoKey: fieldOrPrevious("galleryImageTwoKey", previous?.galleryImageTwoKey ?? null),
+		galleryImageTwoAlt: fieldOrPrevious("galleryImageTwoAlt", previous?.galleryImageTwoAlt ?? null),
+		galleryImageThreeUrl: fieldOrPrevious("galleryImageThreeUrl", previous?.galleryImageThreeUrl ?? null),
+		galleryImageThreeKey: fieldOrPrevious("galleryImageThreeKey", previous?.galleryImageThreeKey ?? null),
+		galleryImageThreeAlt: fieldOrPrevious("galleryImageThreeAlt", previous?.galleryImageThreeAlt ?? null),
+		galleryImageFourUrl: fieldOrPrevious("galleryImageFourUrl", previous?.galleryImageFourUrl ?? null),
+		galleryImageFourKey: fieldOrPrevious("galleryImageFourKey", previous?.galleryImageFourKey ?? null),
+		galleryImageFourAlt: fieldOrPrevious("galleryImageFourAlt", previous?.galleryImageFourAlt ?? null),
+		galleryImageFiveUrl: fieldOrPrevious("galleryImageFiveUrl", previous?.galleryImageFiveUrl ?? null),
+		galleryImageFiveKey: fieldOrPrevious("galleryImageFiveKey", previous?.galleryImageFiveKey ?? null),
+		galleryImageFiveAlt: fieldOrPrevious("galleryImageFiveAlt", previous?.galleryImageFiveAlt ?? null),
 	};
 	const mediaPairs = [
 		[media.heroImageUrl, media.heroImageKey, media.heroImageAlt], [media.introImageUrl, media.introImageKey, media.introImageAlt],
+		[media.principalPhotoUrl, media.principalPhotoKey, media.principalPhotoAlt],
 		[media.galleryImageOneUrl, media.galleryImageOneKey, media.galleryImageOneAlt], [media.galleryImageTwoUrl, media.galleryImageTwoKey, media.galleryImageTwoAlt],
 		[media.galleryImageThreeUrl, media.galleryImageThreeKey, media.galleryImageThreeAlt], [media.galleryImageFourUrl, media.galleryImageFourKey, media.galleryImageFourAlt],
 		[media.galleryImageFiveUrl, media.galleryImageFiveKey, media.galleryImageFiveAlt],
@@ -59,14 +92,13 @@ export async function updateSchoolInformation(formData: FormData) {
 		redirect("/admin/school-information?error=invalid-media");
 	}
 
-	const previous = await prisma.schoolSetting.findUnique({ where: { id: "school" }, select: { heroImageKey: true, introImageKey: true, galleryImageOneKey: true, galleryImageTwoKey: true, galleryImageThreeKey: true, galleryImageFourKey: true, galleryImageFiveKey: true } });
 	const data = { schoolName, address: location, vision, mission, schoolHistory: history, ...media };
 	await prisma.schoolSetting.upsert({ where: { id: "school" }, create: { id: "school", ...data }, update: data });
 	for (const [oldKey, newKey] of [
-		[previous?.heroImageKey, media.heroImageKey], [previous?.introImageKey, media.introImageKey], [previous?.galleryImageOneKey, media.galleryImageOneKey],
+		[previous?.heroImageKey, media.heroImageKey], [previous?.introImageKey, media.introImageKey], [previous?.principalPhotoKey, media.principalPhotoKey], [previous?.galleryImageOneKey, media.galleryImageOneKey],
 		[previous?.galleryImageTwoKey, media.galleryImageTwoKey], [previous?.galleryImageThreeKey, media.galleryImageThreeKey], [previous?.galleryImageFourKey, media.galleryImageFourKey], [previous?.galleryImageFiveKey, media.galleryImageFiveKey],
 	] as Array<[string | null | undefined, string | null]>) await removeReplacedMedia(oldKey ?? null, newKey);
 
-	for (const path of ["/", "/about", "/about/vision-mission", "/contact"]) revalidatePath(path);
+	for (const path of ["/", "/about", "/about/vision-mission", "/about/principal-message", "/administration/principal", "/contact"]) revalidatePath(path);
 	redirect("/admin/school-information?status=saved");
 }

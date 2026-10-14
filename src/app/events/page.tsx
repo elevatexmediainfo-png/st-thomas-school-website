@@ -8,6 +8,11 @@ export const metadata: Metadata = {
   description: "Explore published upcoming and past events for St. Thomas English School, Ruabandha, Bhilai.",
 };
 
-export default function EventsRoute() {
-  return <EventsPage />;
+type EventsSearchParams = Promise<{ q?: string | string[]; category?: string | string[] }>;
+
+const firstValue = (value?: string | string[]) => (Array.isArray(value) ? value[0] : value) ?? "";
+
+export default async function EventsRoute({ searchParams }: { searchParams: EventsSearchParams }) {
+  const { q, category } = await searchParams;
+  return <EventsPage query={firstValue(q).slice(0, 100)} category={firstValue(category).slice(0, 60)} />;
 }

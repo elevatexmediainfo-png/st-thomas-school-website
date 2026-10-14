@@ -10,9 +10,13 @@ type Props = {
   initialUrl?: string | null;
   initialKey?: string | null;
   initialAlt?: string | null;
+  placement?: string;
+  recommendedDimensions?: string;
+  aspectRatio?: string;
+  guidance?: string;
 };
 
-export function AdminMediaField({ label, urlName, keyName, altName, initialUrl, initialKey, initialAlt }: Props) {
+export function AdminMediaField({ label, urlName, keyName, altName, initialUrl, initialKey, initialAlt, placement, recommendedDimensions, aspectRatio, guidance }: Props) {
   const [url, setUrl] = useState(initialUrl ?? "");
   const [key, setKey] = useState(initialKey ?? "");
   const [altText, setAltText] = useState(initialAlt ?? "");
@@ -54,6 +58,7 @@ export function AdminMediaField({ label, urlName, keyName, altName, initialUrl, 
 
   return <fieldset className="admin-media-field">
     <legend>{label}</legend>
+    {placement && recommendedDimensions && aspectRatio && guidance && <p className="admin-media-guidance"><strong>Appears:</strong> {placement}<br /><strong>Recommended:</strong> {recommendedDimensions}<br /><strong>Aspect ratio:</strong> {aspectRatio}<br /><strong>Best for:</strong> {guidance}</p>}
     <input type="hidden" name={urlName} value={url} />
     <input type="hidden" name={keyName} value={key} />
     {url ? <div className="admin-media-preview" role="img" aria-label={altText || `${label} preview`} style={{ backgroundImage: `url("${url.replaceAll('"', "%22")}")` }} /> : <div className="admin-media-preview is-empty" role="img" aria-label={`${label} placeholder`}>Image placeholder</div>}
@@ -62,6 +67,6 @@ export function AdminMediaField({ label, urlName, keyName, altName, initialUrl, 
     <input ref={fileInput} className="sr-only" type="file" accept="image/jpeg,image/png,image/webp,image/avif" onChange={(event) => upload(event.target.files?.[0])} />
     <div className="admin-media-actions"><button type="button" className="button button-outline-dark" disabled={busy} onClick={() => fileInput.current?.click()}>{busy ? "Working..." : url ? "Replace image" : "Upload image"}</button>{url && <button type="button" className="admin-danger-button" disabled={busy} onClick={remove}>Remove image</button>}</div>
     {message && <p className="admin-form-note" role="status">{message}</p>}
-    <p className="admin-form-note">Storage uploads remain unavailable until a provider is configured. Image URLs may be entered manually.</p>
+    <p className="admin-form-note">Uploads use the configured server-side media provider. Manual HTTPS URLs may also be entered.</p>
   </fieldset>;
 }

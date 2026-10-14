@@ -101,13 +101,13 @@ export const homeContent = {
   gallery: {
     eyebrow: "07 / Photo gallery",
     title: "A glimpse of our world.",
-    description: "School photographs can be added here as the official gallery becomes available.",
+    description: "Moments, activities, and memories from across our school campus and community.",
     images: [
-      { className: "gallery-image-one", label: "School life placeholder" },
-      { className: "gallery-image-two", label: "Learning placeholder" },
-      { className: "gallery-image-three", label: "Activities placeholder" },
-      { className: "gallery-image-four", label: "Campus placeholder" },
-      { className: "gallery-image-five", label: "Classroom placeholder" },
+      { className: "gallery-image-one", label: "School Life" },
+      { className: "gallery-image-two", label: "Learning" },
+      { className: "gallery-image-three", label: "Activities" },
+      { className: "gallery-image-four", label: "Campus" },
+      { className: "gallery-image-five", label: "Classroom" },
     ],
   },
   admissions: {

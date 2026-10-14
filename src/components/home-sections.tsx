@@ -4,6 +4,7 @@ import Image from "next/image";
 import { homeContent, schoolContent } from "@/content/home-content";
 import { getPublicSchoolIdentity } from "@/lib/public-school-identity";
 import { prisma } from "@/lib/prisma";
+import { SCHOOL_TIME_ZONE, groupEventsBySchedule, listUpcomingEvents } from "@/lib/event-schedule";
 
 function SectionIntro({ eyebrow, title, description }: { eyebrow: string; title: ReactNode; description?: string }) {
   return <div className="section-heading"><div><p className="eyebrow">{eyebrow}</p><h2>{title}</h2></div>{description && <p>{description}</p>}</div>;
@@ -23,12 +24,14 @@ export async function NoticesSection() {
 }
 
 export async function EventsSection() {
-  const events = await prisma.event.findMany({ where: { publication: "PUBLISHED", status: "UPCOMING" }, orderBy: [{ eventDate: "asc" }, { createdAt: "desc" }], take: 3 });
-  return <section className="events-section container" id="events"><SectionIntro eyebrow={homeContent.events.eyebrow} title={<>Make room for <em>memories.</em></>} description={homeContent.events.description} />{events.length ? <div className="event-grid">{events.map((event) => <article className="event-card" key={event.id}><div className="event-date"><strong>{event.eventDate?.toLocaleDateString("en-IN", { day: "2-digit" }) ?? "Date"}</strong><span>{event.eventDate?.toLocaleDateString("en-IN", { month: "short" }) ?? "to be set"}</span></div><div><p className="event-venue">{event.venue ?? ""}</p><h3>{event.title}</h3>{event.description && <p>{event.description}</p>}</div><Link href={`/events/${event.slug}`} aria-label={`View event ${event.title}`}>↗</Link></article>)}</div> : <p className="home-content-empty">No upcoming events have been published.</p>}<Link className="text-link" href="/events">View all events <span aria-hidden="true">↗</span></Link></section>;
+  const records = await prisma.event.findMany({ where: { publication: "PUBLISHED" }, orderBy: { eventDate: "asc" } });
+  const events = listUpcomingEvents(groupEventsBySchedule(records)).slice(0, 3);
+  const dateParts = (date: Date, options: Intl.DateTimeFormatOptions) => date.toLocaleDateString("en-IN", { ...options, timeZone: SCHOOL_TIME_ZONE });
+  return <section className="events-section container" id="events"><SectionIntro eyebrow={homeContent.events.eyebrow} title={<>Make room for <em>memories.</em></>} description={homeContent.events.description} />{events.length ? <div className="event-grid">{events.map((event) => <article className="event-card" key={event.id}><div className="event-date"><strong>{dateParts(event.eventDate!, { day: "2-digit" })}</strong><span>{dateParts(event.eventDate!, { month: "short" })}</span></div><div><p className="event-venue">{event.venue ?? ""}</p><h3>{event.title}</h3>{event.description && <p>{event.description}</p>}</div><Link href={`/events/${event.slug}`} aria-label={`View event ${event.title}`}>↗</Link></article>)}</div> : <p className="home-content-empty">No upcoming events have been published.</p>}<Link className="text-link" href="/events">View all events <span aria-hidden="true">↗</span></Link></section>;
 }
 
-export function GallerySection({ images }: { images: Array<{ className: string; label: string; imageUrl: string | null; imageAlt: string | null }> }) {
-  return <section className="gallery-section container" id="gallery"><SectionIntro eyebrow={homeContent.gallery.eyebrow} title={<>A glimpse of <em>our world.</em></>} description={homeContent.gallery.description} /><div className="gallery-grid">{images.map((image) => <a className={`gallery-tile ${image.className}`} href="#contact" aria-label={image.imageAlt || `View gallery: ${image.label}`} key={image.className} style={image.imageUrl ? { backgroundImage: `url("${image.imageUrl.replaceAll('"', "%22")}")` } : undefined}><span>{image.label}</span><i aria-hidden="true">↗</i></a>)}</div><a className="button button-dark" href="#contact">View gallery <span aria-hidden="true">↗</span></a></section>;
+export function GallerySection({ images }: { images: Array<{ className: string; label: string; imageUrl: string | null; imageAlt: string | null; href?: string }> }) {
+  return <section className="gallery-section container" id="gallery"><SectionIntro eyebrow={homeContent.gallery.eyebrow} title={<>A glimpse of <em>our world.</em></>} description={homeContent.gallery.description} /><div className="gallery-grid">{images.map((image) => <Link className={`gallery-tile ${image.className}`} href={image.href || "/gallery"} aria-label={image.imageAlt || `View gallery: ${image.label}`} key={image.className} style={image.imageUrl ? { backgroundImage: `url("${image.imageUrl.replaceAll('"', "%22")}")` } : undefined}><span>{image.label}</span><i aria-hidden="true">↗</i></Link>)}</div><Link className="button button-dark" href="/gallery">View gallery <span aria-hidden="true">↗</span></Link></section>;
 }
 
 export async function ContactSection() {

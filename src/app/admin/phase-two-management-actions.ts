@@ -133,15 +133,15 @@ export async function updatePrincipal(formData: FormData) {
 	const principalName = text(formData, "principalName");
 	const principalDesignation = text(formData, "principalDesignation");
 	const principalMessage = text(formData, "principalMessage");
-	const principalPhotoUrl = optionalText(formData, "principalPhotoUrl");
-	const principalPhotoKey = optionalText(formData, "principalPhotoKey");
-	const principalPhotoAlt = optionalText(formData, "principalPhotoAlt");
+	const previous = await prisma.schoolSetting.findUnique({ where: { id: "school" }, select: { principalPhotoKey: true, principalPhotoUrl: true, principalPhotoAlt: true } });
+	const principalPhotoUrl = formData.has("principalPhotoUrl") ? optionalText(formData, "principalPhotoUrl") : (previous?.principalPhotoUrl ?? null);
+	const principalPhotoKey = formData.has("principalPhotoKey") ? optionalText(formData, "principalPhotoKey") : (previous?.principalPhotoKey ?? null);
+	const principalPhotoAlt = formData.has("principalPhotoAlt") ? optionalText(formData, "principalPhotoAlt") : (previous?.principalPhotoAlt ?? null);
 	if (!principalName || !principalDesignation || !principalMessage) redirect("/admin/principal?error=required");
 	if (principalName.length > 160 || principalDesignation.length > 160 || principalMessage.length > 12000 || (principalPhotoAlt?.length ?? 0) > 240 || !isSafeMediaReference(principalPhotoUrl, principalPhotoKey)) {
 		redirect("/admin/principal?error=invalid");
 	}
 
-	const previous = await prisma.schoolSetting.findUnique({ where: { id: "school" }, select: { principalPhotoKey: true } });
 	await prisma.schoolSetting.upsert({
 		where: { id: "school" },
 		create: { id: "school", principalName, principalDesignation, principalMessage, principalPhotoUrl, principalPhotoKey, principalPhotoAlt },
