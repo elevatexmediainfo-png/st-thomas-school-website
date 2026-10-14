@@ -561,6 +561,10 @@ h1 em, h2 em { color: var(--coral); font-style: italic; }
 .admission-document span { color: #68736c; font-size: 12px; line-height: 1.6; }
 .admission-document button { align-self: flex-start; background: #ddd8cc; border: 0; color: #7c827d; cursor: not-allowed; font-size: 10px; letter-spacing: .08em; margin-top: 10px; padding: 13px; text-transform: uppercase; }
 .editable-list { border-top: 1px solid #cfc9be; list-style: none; margin: 0 0 40px; padding: 0; }
+.admission-steps { display: grid; gap: 14px; grid-template-columns: repeat(2, minmax(0, 1fr)); list-style: none; margin: 0; padding: 0; }
+.admission-steps li { align-items: flex-start; background: var(--sand); border: 1px solid #cfc9be; display: flex; gap: 16px; padding: 20px 22px; }
+.admission-step-number { align-items: center; background: var(--forest); border-radius: 50%; color: white; display: inline-flex; flex: 0 0 36px; font-family: Georgia, serif; font-size: 17px; height: 36px; justify-content: center; width: 36px; }
+.admission-steps p { color: #3d4a44; font-size: 15px; line-height: 1.6; margin: 0; padding-top: 6px; }
 .editable-list li { border-bottom: 1px solid #cfc9be; color: #68736c; font-size: 13px; line-height: 1.6; padding: 16px 0; }
 .instruction-label { margin-top: 32px; }
 .enquiry-section { background: var(--forest); color: white; padding: 105px 0; }
@@ -1265,37 +1269,37 @@ h1 em, h2 em { color: var(--coral); font-style: italic; }
 
 /* Extra-compact phone typography. Kept last so it wins over every earlier mobile rule. */
 @media (max-width: 600px) {
-  body { font-size: 10px; line-height: 1.4; }
+  body { font-size: 13px; line-height: 1.5; }
 
-  .topline, .top-line-inner p, .topline-links a { font-size: 4px; letter-spacing: .03em; line-height: 1.2; }
-  .top-line-inner { min-height: 0; padding-bottom: 2px; padding-top: 2px; }
+  .topline, .top-line-inner p, .topline-links a { font-size: 10px; letter-spacing: .02em; line-height: 1.3; }
+  .top-line-inner { min-height: 0; padding-bottom: 4px; padding-top: 4px; }
   .header-inner { align-items: center; display: flex; flex-wrap: nowrap; gap: 6px; justify-content: space-between; min-height: 0; padding-bottom: 4px; padding-top: 4px; }
   .brand { align-items: center; display: flex; flex: 1 1 auto; flex-direction: row; gap: 6px; margin: 0; max-width: none; min-width: 0; padding: 0; text-decoration: none; width: 100%; }
   .brand-logo { flex: 0 0 30px; height: 30px; margin: 0; max-width: none; min-width: 30px; object-fit: contain; padding: 0; width: 30px; }
   .brand-copy { flex: 1 1 0; gap: 1px; justify-content: center; margin: 0; max-width: none; min-width: 0; padding: 0; width: auto; }
-  .brand-copy strong { display: block; font-size: 9px; font-weight: 600; letter-spacing: -.01em; line-height: 1.15; overflow-wrap: normal; text-decoration: none; white-space: normal; word-break: normal; }
-  .brand-copy span { display: block; font-size: 7px; letter-spacing: .02em; line-height: 1.15; text-decoration: none; }
+  .brand-copy strong { display: block; font-size: 12px; font-weight: 600; letter-spacing: -.01em; line-height: 1.15; overflow-wrap: normal; text-decoration: none; white-space: normal; word-break: normal; }
+  .brand-copy span { display: block; font-size: 9px; letter-spacing: .01em; line-height: 1.2; text-decoration: none; }
   .menu-toggle { flex: 0 0 auto; }
-  .primary-nav a, .primary-nav .nav-cta { font-size: 9px; min-height: 40px; padding-bottom: 10px; padding-top: 10px; }
+  .primary-nav a, .primary-nav .nav-cta { font-size: 13px; min-height: 44px; padding-bottom: 10px; padding-top: 10px; }
 
-  .hero-content { padding-bottom: 12px; padding-top: 10px; }
-  .hero-content .eyebrow, .eyebrow, .footer-label { font-size: 5px; letter-spacing: .1em; line-height: 1.3; margin-bottom: 4px; }
-  .hero-section h1 { font-size: 18px; line-height: 1.15; margin-bottom: 6px; }
-  .hero-intro { font-size: 10px; line-height: 1.4; margin-bottom: 8px; }
-  .hero-actions { gap: 8px; margin-top: 0; }
-  .page-hero { padding-bottom: 16px; padding-top: 10px; }
-  .page-hero h1 { font-size: 17px; line-height: 1.15; }
-  .page-hero-description { font-size: 10px; line-height: 1.4; }
+  .hero-content { padding-bottom: 20px; padding-top: 16px; }
+  .hero-content .eyebrow, .eyebrow, .footer-label { font-size: 11px; letter-spacing: .08em; line-height: 1.3; margin-bottom: 6px; }
+  .hero-section h1 { font-size: 24px; line-height: 1.15; margin-bottom: 10px; }
+  .hero-intro { font-size: 13px; line-height: 1.5; margin-bottom: 12px; }
+  .hero-actions { gap: 10px; margin-top: 0; }
+  .page-hero { padding-bottom: 22px; padding-top: 16px; }
+  .page-hero h1 { font-size: 23px; line-height: 1.15; }
+  .page-hero-description { font-size: 13px; line-height: 1.5; }
 
   h2, .intro-copy h2, .welcome-copy h2, .section-heading h2, .notice-grid h2, .admissions-inner h2, .notices-grid h2, .contact-grid h2,
   .about-introduction-copy h2, .quick-facts-heading h2, .about-cta h2, .vision-card h2, .mission-card h2, .message-copy h2, .message-note h2,
   .academic-highlight-band h2, .sports-note h2, .academic-links-cta h2, .administration-highlight-band h2, .academic-leadership-section h2, .administration-links-cta h2, .administration-message-copy h2,
   .news-feature-section h2, .news-archive-section h2, .listing-section-heading h2, .featured-event-card h2, .detail-copy h2, .content-intro-row h2, .content-section-heading h2,
-  .resource-intro h2, .enquiry-grid h2, .contact-info-panel h2, .contact-enquiry-grid h2 { font-size: 16px; line-height: 1.15; }
+  .resource-intro h2, .enquiry-grid h2, .contact-info-panel h2, .contact-enquiry-grid h2 { font-size: 20px; line-height: 1.2; }
 
   h3, .pillar h3, .academic-card h3, .feature-card h3, .event-card h3, .about-approach-card h3, .value-card h3, .academic-info-card h3, .class-stage-card h3, .subject-card h3,
   .administration-info-card h3, .management-structure h3, .faculty-category h3, .notice-list-card h3, .event-list-card h3, .gallery-album-content h3, .download-card h3,
-  .process-grid h3, .admission-detail-grid strong, .admission-document strong, .success-state h3, .contact-success h3, .calendar-list h3, .news-feature-card h3, .quick-link strong { font-size: 13px; line-height: 1.15; }
+  .process-grid h3, .admission-detail-grid strong, .admission-document strong, .success-state h3, .contact-success h3, .calendar-list h3, .news-feature-card h3, .quick-link strong { font-size: 16px; line-height: 1.25; }
 
   .intro-copy > p, .welcome-copy > p:not(.eyebrow), .section-heading > p, .admissions-inner > p:not(.eyebrow), .pillar p, .academic-card p, .feature-card p, .event-card > div > p:last-child,
   .about-introduction-copy p, .about-approach-card p, .value-card p, .vision-card p:last-child, .mission-card p:last-child, .message-copy > p:not(.eyebrow),
@@ -1305,11 +1309,21 @@ h1 em, h2 em { color: var(--coral); font-style: italic; }
   .listing-section-heading > p:last-child, .event-list-card-content > p:not(.event-list-date):not(.event-list-venue), .featured-event-card p:not(.eyebrow):not(.featured-event-meta),
   .detail-copy > p, .content-intro-row > p, .gallery-album-content p, .resource-intro > p, .process-grid p, .admission-detail-grid p, .enquiry-grid > div > p:not(.eyebrow),
   .success-state p, .download-card p, .contact-enquiry-grid > div > p:not(.eyebrow), .contact-success p, .contact-details p, .contact-page-details p, .system-page > p:not(.eyebrow),
-  .calendar-list p, .download-placeholder p:last-child, .footer-grid > div > a:not(.brand), .footer-grid > div > p:not(.footer-label) { font-size: 10px; line-height: 1.4; }
+  .calendar-list p, .download-placeholder p:last-child, .footer-grid > div > a:not(.brand), .footer-grid > div > p:not(.footer-label) { font-size: 13px; line-height: 1.5; }
 
-  .button, .hero-actions .button, .admission-actions .button { font-size: 9px; min-height: 40px; padding: 9px 12px; }
-  .text-link { font-size: 9px; }
-  .gallery-tile span, .gallery-grid .gallery-tile span { font-size: 9px; }
+  .button, .hero-actions .button, .admission-actions .button { font-size: 13px; min-height: 44px; padding: 10px 16px; }
+  .text-link { font-size: 13px; }
+  .event-list-date, .event-list-venue, .notice-card-date, .notice-category, .event-date span, .featured-event-meta, .quick-link small, .notice-copy small:last-child, .contact-details small,
+  .breadcrumbs, .contact-form label, .enquiry-form label, .admin-form label, .admission-details strong, .quick-number, .card-number { font-size: 11px; line-height: 1.4; }
+  .admission-detail-grid span, .process-grid span { font-size: 11px; }
+  .admission-steps { gap: 10px; grid-template-columns: 1fr; }
+  .admission-steps li { gap: 12px; padding: 14px; }
+  .admission-step-number { flex-basis: 30px; font-size: 14px; height: 30px; width: 30px; }
+  .admission-steps p { font-size: 13px; line-height: 1.5; padding-top: 4px; }
+  .editable-list li { font-size: 13px; }
+  .event-date strong { font-size: 26px; }
+  .footer-bottom { font-size: 11px; }
+  .gallery-tile span, .gallery-grid .gallery-tile span { font-size: 12px; }
   .intro-section, .academic-section, .events-section, .gallery-section, .pillars-section, .school-life-section, .notice-section, .notices-section, .contact-section, .admissions-inner,
   .about-introduction, .quick-facts-section, .message-section, .about-approach, .about-cta, .message-note, .values-section, .vision-mission-intro,
   .academic-content-section, .academic-highlight-band, .sports-note, .academic-links-cta, .administration-content-section, .administration-message-section,
@@ -1348,7 +1362,7 @@ h1 em, h2 em { color: var(--coral); font-style: italic; }
   .enquiry-form, .success-state, .contact-success, .contact-enquiry-grid > div + div, .document-instruction-grid > div + div { margin-top: 20px; }
   .featured-event-card { margin-bottom: 20px; }
   .featured-event-card > div:last-child, .featured-event-empty { padding: 18px 16px; }
-  .featured-event-card h2 { font-size: 16px; line-height: 1.15; margin-bottom: 10px; }
+  .featured-event-card h2 { font-size: 20px; line-height: 1.2; margin-bottom: 10px; }
   .featured-event-card p:not(.eyebrow):not(.featured-event-meta) { margin-bottom: 10px; }
   .featured-event-meta { margin-bottom: 14px; }
   .featured-event-empty { margin-bottom: 20px; }
@@ -1358,7 +1372,7 @@ h1 em, h2 em { color: var(--coral); font-style: italic; }
   .listing-filter-bar + .event-phase-group { margin-top: 14px; }
   .event-list-card + .event-list-card { margin-top: 14px; }
   .event-list-card h3 { margin: 10px 0 8px; }
-  .event-list-meta .event-status { font-size: 9px; }
+  .event-list-meta .event-status { font-size: 11px; }
   .event-list-card .event-placeholder-image, .featured-event-card .event-placeholder-image, .detail-image-placeholder, .gallery-cover-placeholder, .contact-map-placeholder { min-height: 160px; }
 }
 
