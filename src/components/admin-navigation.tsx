@@ -8,6 +8,7 @@ const links = [
 	["Dashboard", "/admin"],
 	["Website Content", "/admin/school-information"],
 	["Principal", "/admin/principal"],
+	["Leadership & Management", "/admin/leadership"],
 	["Academics", "/admin/academics"],
 	["Facilities", "/admin/facilities"],
 	["Faculty & Staff", "/admin/faculty"],

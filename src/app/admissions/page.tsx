@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { connection } from "next/server";
 import { AdmissionsPage } from "@/components/admissions-pages";
 import { SiteFooter } from "@/components/home-sections";
 import { SiteHeader } from "@/components/site-header";
@@ -10,6 +11,7 @@ export const metadata: Metadata = {
 };
 
 export default async function AdmissionsRoute() {
+  await connection();
   const settings = await prisma.admissionSetting.findUnique({ where: { id: "admissions" } });
   return <div id="top"><SiteHeader /><AdmissionsPage settings={settings} /><SiteFooter /></div>;
 }

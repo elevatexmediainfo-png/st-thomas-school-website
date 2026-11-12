@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { connection } from "next/server";
 import { ContactPage } from "@/components/contact-page";
 import { SiteFooter } from "@/components/home-sections";
 import { SiteHeader } from "@/components/site-header";
@@ -10,6 +11,7 @@ export const metadata: Metadata = {
 };
 
 export default async function ContactRoute() {
+  await connection();
   const settings = await prisma.schoolSetting.findUnique({ where: { id: "school" }, select: { schoolName: true, address: true, phone: true, email: true, mapLink: true, websiteUrl: true, instagramUrl: true, facebookUrl: true, youtubeUrl: true } });
   return <div id="top"><SiteHeader /><ContactPage settings={settings} /><SiteFooter /></div>;
 }

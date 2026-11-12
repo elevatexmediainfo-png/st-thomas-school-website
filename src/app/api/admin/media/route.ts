@@ -1,8 +1,8 @@
 import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
-import { auth } from "@/auth";
-import { isSameOrigin } from "@/lib/admin-api";
+import { guardAdminRequest } from "@/lib/admin-api";
 import { getMediaStorage, safeMediaKey } from "@/lib/media-storage";
+import { isMediaReferenced } from "@/lib/media-cleanup";
 
 export const runtime = "nodejs";
 const maxBytes = 8 * 1024 * 1024;
@@ -17,8 +17,8 @@ function matchesImageType(bytes: Uint8Array, contentType: string) {
 }
 
 export async function POST(request: Request) {
-  if (!(await auth())?.user) return NextResponse.json({ error: "Authentication required." }, { status: 401 });
-  if (!isSameOrigin(request)) return NextResponse.json({ error: "Same-origin request required." }, { status: 403 });
+  const denied = await guardAdminRequest(request);
+  if (denied) return denied;
   const storage = getMediaStorage();
   if (!storage) return NextResponse.json({ error: "Media storage is not configured. No file was stored." }, { status: 503 });
 
@@ -47,8 +47,8 @@ export async function POST(request: Request) {
 }
 
 export async function DELETE(request: Request) {
-  if (!(await auth())?.user) return NextResponse.json({ error: "Authentication required." }, { status: 401 });
-  if (!isSameOrigin(request)) return NextResponse.json({ error: "Same-origin request required." }, { status: 403 });
+  const denied = await guardAdminRequest(request);
+  if (denied) return denied;
   const storage = getMediaStorage();
   if (!storage) return NextResponse.json({ error: "Media storage is not configured. No file was deleted." }, { status: 503 });
 
@@ -61,6 +61,7 @@ export async function DELETE(request: Request) {
   const key = typeof body.key === "string" ? body.key : "";
   if (!safeMediaKey(key) || !key.startsWith("school/")) return NextResponse.json({ error: "Invalid media key." }, { status: 400 });
   try {
+    if (await isMediaReferenced(key)) return NextResponse.json({ error: "This image is still referenced by school content." }, { status: 409 });
     await storage.delete(key);
   } catch {
     return NextResponse.json({ error: "The media provider could not remove this image." }, { status: 502 });

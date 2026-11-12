@@ -18,6 +18,29 @@ enum PublicationStatus {
   UNPUBLISHED
 }
 
+enum LeadershipRole {
+  CHAIRMAN
+  MANAGER
+}
+
+model LeadershipMember {
+  id String @id @default(cuid())
+  systemRole LeadershipRole? @unique
+  fullName String
+  designation String
+  photoUrl String?
+  photoKey String?
+  photoAlt String?
+  message String?
+  summary String?
+  sortOrder Int @default(0)
+  status PublicationStatus @default(DRAFT)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status, sortOrder])
+}
+
 enum NoticeType {
   NEWS
   NOTICE
@@ -256,6 +279,11 @@ model SchoolSetting {
   galleryImageFiveKey  String?
   galleryImageFiveAlt  String?
   principalDeskTitle   String?
+  principalSummary String?
+  principalSortOrder Int @default(30)
+  principalStatus PublicationStatus @default(PUBLISHED)
+  principalProfileCreatedAt DateTime @default(now())
+  principalProfileUpdatedAt DateTime @default(now())
   sportsMessage           String?
   sportsMessageAuthorName String?
   sportsMessageAuthorRole String?

@@ -1,0 +1,1 @@
+export default function Loading() { return <main className="container leadership-section" aria-busy="true" aria-live="polite"><h1>Loading leadership…</h1><div className="leadership-grid">{[1, 2, 3].map(id => <div className="leadership-skeleton" key={id} />)}</div></main>; }

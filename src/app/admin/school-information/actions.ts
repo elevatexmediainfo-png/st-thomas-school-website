@@ -33,7 +33,6 @@ export async function updateSchoolInformation(formData: FormData) {
 		select: {
 			heroImageUrl: true, heroImageKey: true, heroImageAlt: true,
 			introImageUrl: true, introImageKey: true, introImageAlt: true,
-			principalPhotoUrl: true, principalPhotoKey: true, principalPhotoAlt: true,
 			galleryImageOneUrl: true, galleryImageOneKey: true, galleryImageOneAlt: true,
 			galleryImageTwoUrl: true, galleryImageTwoKey: true, galleryImageTwoAlt: true,
 			galleryImageThreeUrl: true, galleryImageThreeKey: true, galleryImageThreeAlt: true,
@@ -55,9 +54,6 @@ export async function updateSchoolInformation(formData: FormData) {
 		introImageUrl: fieldOrPrevious("introImageUrl", previous?.introImageUrl ?? null),
 		introImageKey: fieldOrPrevious("introImageKey", previous?.introImageKey ?? null),
 		introImageAlt: fieldOrPrevious("introImageAlt", previous?.introImageAlt ?? null),
-		principalPhotoUrl: fieldOrPrevious("principalPhotoUrl", previous?.principalPhotoUrl ?? null),
-		principalPhotoKey: fieldOrPrevious("principalPhotoKey", previous?.principalPhotoKey ?? null),
-		principalPhotoAlt: fieldOrPrevious("principalPhotoAlt", previous?.principalPhotoAlt ?? null),
 		galleryImageOneUrl: fieldOrPrevious("galleryImageOneUrl", previous?.galleryImageOneUrl ?? null),
 		galleryImageOneKey: fieldOrPrevious("galleryImageOneKey", previous?.galleryImageOneKey ?? null),
 		galleryImageOneAlt: fieldOrPrevious("galleryImageOneAlt", previous?.galleryImageOneAlt ?? null),
@@ -76,7 +72,6 @@ export async function updateSchoolInformation(formData: FormData) {
 	};
 	const mediaPairs = [
 		[media.heroImageUrl, media.heroImageKey, media.heroImageAlt], [media.introImageUrl, media.introImageKey, media.introImageAlt],
-		[media.principalPhotoUrl, media.principalPhotoKey, media.principalPhotoAlt],
 		[media.galleryImageOneUrl, media.galleryImageOneKey, media.galleryImageOneAlt], [media.galleryImageTwoUrl, media.galleryImageTwoKey, media.galleryImageTwoAlt],
 		[media.galleryImageThreeUrl, media.galleryImageThreeKey, media.galleryImageThreeAlt], [media.galleryImageFourUrl, media.galleryImageFourKey, media.galleryImageFourAlt],
 		[media.galleryImageFiveUrl, media.galleryImageFiveKey, media.galleryImageFiveAlt],
@@ -95,7 +90,7 @@ export async function updateSchoolInformation(formData: FormData) {
 	const data = { schoolName, address: location, vision, mission, schoolHistory: history, ...media };
 	await prisma.schoolSetting.upsert({ where: { id: "school" }, create: { id: "school", ...data }, update: data });
 	for (const [oldKey, newKey] of [
-		[previous?.heroImageKey, media.heroImageKey], [previous?.introImageKey, media.introImageKey], [previous?.principalPhotoKey, media.principalPhotoKey], [previous?.galleryImageOneKey, media.galleryImageOneKey],
+		[previous?.heroImageKey, media.heroImageKey], [previous?.introImageKey, media.introImageKey], [previous?.galleryImageOneKey, media.galleryImageOneKey],
 		[previous?.galleryImageTwoKey, media.galleryImageTwoKey], [previous?.galleryImageThreeKey, media.galleryImageThreeKey], [previous?.galleryImageFourKey, media.galleryImageFourKey], [previous?.galleryImageFiveKey, media.galleryImageFiveKey],
 	] as Array<[string | null | undefined, string | null]>) await removeReplacedMedia(oldKey ?? null, newKey);
 

@@ -3,7 +3,6 @@ import { AdminMediaField } from "@/components/admin-media-field";
 import {
 	saveFaculty,
 	saveFacility,
-	updatePrincipal,
 	updateSportsMessage,
 } from "@/app/admin/phase-two-management-actions";
 
@@ -32,14 +31,6 @@ type FacilityInput = {
 	status: string;
 };
 
-type PrincipalInput = {
-	principalName: string | null;
-	principalDesignation: string | null;
-	principalMessage: string | null;
-	principalPhotoUrl: string | null;
-	principalPhotoKey: string | null;
-	principalPhotoAlt: string | null;
-};
 
 type SportsMessageInput = {
 	sportsMessageAuthorName: string | null;
@@ -91,18 +82,7 @@ export function FacilityForm({ facility }: { facility?: FacilityInput }) {
 	</form>;
 }
 
-export function PrincipalForm({ settings }: { settings: PrincipalInput }) {
-	return <form className="admin-form" action={updatePrincipal}>
-		<div className="admin-form-grid">
-			<label>Name<input name="principalName" required maxLength={160} defaultValue={settings.principalName ?? ""} /></label>
-			<label>Designation<input name="principalDesignation" required maxLength={160} defaultValue={settings.principalDesignation ?? "I/C Principal"} /></label>
-			<label>Message<textarea name="principalMessage" rows={12} required maxLength={12000} defaultValue={settings.principalMessage ?? ""} /></label>
-			<AdminMediaField label="Principal photo" urlName="principalPhotoUrl" keyName="principalPhotoKey" altName="principalPhotoAlt" initialUrl={settings.principalPhotoUrl} initialKey={settings.principalPhotoKey} initialAlt={settings.principalPhotoAlt} />
-		</div>
-		<p className="admin-form-note">No photo is currently stored. Leave the photo field blank to keep the public placeholder.</p>
-		<div className="admin-form-actions"><button className="button button-dark" type="submit">Save Principal information</button><Link className="button button-outline-dark" href="/admin">Cancel</Link></div>
-	</form>;
-}
+export { PrincipalForm } from "@/components/admin-principal-form";
 
 export function SportsMessageForm({ settings }: { settings: SportsMessageInput }) {
 	return <form className="admin-form" action={updateSportsMessage}>
@@ -126,6 +106,7 @@ export function PhaseTwoFeedback({ status, error }: { status?: string; error?: s
 	"message-saved": "Sports message saved successfully.",
 	};
 	const errorMessages: Record<string, string> = {
+		conflict: "This profile changed since you opened it. Reload before saving again.",
 		required: "Complete all required fields before saving.",
 		invalid: "Check the field lengths and photo URL. Photo URLs must use HTTPS or a site-relative path.",
 	};

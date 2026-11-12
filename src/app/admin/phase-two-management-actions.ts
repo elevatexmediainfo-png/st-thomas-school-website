@@ -7,6 +7,9 @@ import { $Enums } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import { isSafeMediaReference } from "@/lib/media-validation";
 import { removeReplacedMedia } from "@/lib/media-cleanup";
+import { requireLeadershipAdmin, revalidateLeadership } from "@/lib/leadership-admin";
+import { validateLeadership, type LeadershipStatus } from "@/lib/leadership-validation";
+import { isTrustedMediaUrl } from "@/lib/media-storage";
 
 async function requireAdmin() {
 	if (!(await auth())?.user) redirect("/admin/login");
@@ -129,26 +132,37 @@ export async function deleteFacility(formData: FormData) {
 }
 
 export async function updatePrincipal(formData: FormData) {
-	await requireAdmin();
+	await requireLeadershipAdmin();
 	const principalName = text(formData, "principalName");
 	const principalDesignation = text(formData, "principalDesignation");
 	const principalMessage = text(formData, "principalMessage");
-	const previous = await prisma.schoolSetting.findUnique({ where: { id: "school" }, select: { principalPhotoKey: true, principalPhotoUrl: true, principalPhotoAlt: true } });
+	const previous = await prisma.schoolSetting.findUnique({ where: { id: "school" } });
 	const principalPhotoUrl = formData.has("principalPhotoUrl") ? optionalText(formData, "principalPhotoUrl") : (previous?.principalPhotoUrl ?? null);
 	const principalPhotoKey = formData.has("principalPhotoKey") ? optionalText(formData, "principalPhotoKey") : (previous?.principalPhotoKey ?? null);
 	const principalPhotoAlt = formData.has("principalPhotoAlt") ? optionalText(formData, "principalPhotoAlt") : (previous?.principalPhotoAlt ?? null);
-	if (!principalName || !principalDesignation || !principalMessage) redirect("/admin/principal?error=required");
-	if (principalName.length > 160 || principalDesignation.length > 160 || principalMessage.length > 12000 || (principalPhotoAlt?.length ?? 0) > 240 || !isSafeMediaReference(principalPhotoUrl, principalPhotoKey)) {
+	const principalSummary = optionalText(formData, "principalSummary");
+	const principalDeskTitle = optionalText(formData, "principalDeskTitle");
+	const principalStatus = text(formData, "principalStatus");
+	const principalSortOrder = text(formData, "principalSortOrder");
+	const invalid = validateLeadership({ fullName: principalName, designation: principalDesignation, message: principalMessage, summary: principalSummary ?? "", status: principalStatus, sortOrder: principalSortOrder, photoAlt: principalPhotoAlt ?? "" });
+	// Existing references stay compatible; newly assigned managed keys must match their URL.
+	const unchangedMedia = principalPhotoKey === previous?.principalPhotoKey && principalPhotoUrl === previous?.principalPhotoUrl;
+	if (invalid || (principalDeskTitle?.length ?? 0) > 160 || !isSafeMediaReference(principalPhotoUrl, principalPhotoKey) || (!unchangedMedia && principalPhotoKey && !isTrustedMediaUrl(principalPhotoUrl!, principalPhotoKey))) {
 		redirect("/admin/principal?error=invalid");
 	}
-
-	await prisma.schoolSetting.upsert({
-		where: { id: "school" },
-		create: { id: "school", principalName, principalDesignation, principalMessage, principalPhotoUrl, principalPhotoKey, principalPhotoAlt },
-		update: { principalName, principalDesignation, principalMessage, principalPhotoUrl, principalPhotoKey, principalPhotoAlt },
-	});
+	const data = { principalName, principalDesignation, principalMessage, principalPhotoUrl, principalPhotoKey, principalPhotoAlt, principalSummary, principalDeskTitle, principalStatus: principalStatus as LeadershipStatus, principalSortOrder: Number(principalSortOrder), principalProfileUpdatedAt: new Date() };
+	const version = text(formData, "version");
+	if (previous) {
+		if (!version || version === "new" || Number.isNaN(Date.parse(version))) redirect("/admin/principal?error=conflict");
+		const result = await prisma.schoolSetting.updateMany({ where: { id: "school", updatedAt: new Date(version) }, data });
+		if (!result.count) redirect("/admin/principal?error=conflict");
+	} else {
+		if (version !== "new") redirect("/admin/principal?error=conflict");
+		try { await prisma.schoolSetting.create({ data: { id: "school", ...data } }); }
+		catch (error) { if (typeof error === "object" && error && "code" in error && error.code === "P2002") redirect("/admin/principal?error=conflict"); throw error; }
+	}
 	await removeReplacedMedia(previous?.principalPhotoKey ?? null, principalPhotoKey);
-	for (const path of ["/", "/administration/principal", "/about/principal-message"]) revalidatePath(path);
+	revalidateLeadership();
 	redirect("/admin/principal?status=saved");
 }
 

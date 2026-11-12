@@ -14,9 +14,10 @@ type Props = {
   recommendedDimensions?: string;
   aspectRatio?: string;
   guidance?: string;
+  onBusyChange?: (busy: boolean) => void;
 };
 
-export function AdminMediaField({ label, urlName, keyName, altName, initialUrl, initialKey, initialAlt, placement, recommendedDimensions, aspectRatio, guidance }: Props) {
+export function AdminMediaField({ label, urlName, keyName, altName, initialUrl, initialKey, initialAlt, placement, recommendedDimensions, aspectRatio, guidance, onBusyChange }: Props) {
   const [url, setUrl] = useState(initialUrl ?? "");
   const [key, setKey] = useState(initialKey ?? "");
   const [altText, setAltText] = useState(initialAlt ?? "");
@@ -28,6 +29,7 @@ export function AdminMediaField({ label, urlName, keyName, altName, initialUrl, 
     if (!file) return;
     setMessage("");
     setBusy(true);
+    onBusyChange?.(true);
     try {
       const data = new FormData();
       data.set("file", file);
@@ -45,6 +47,7 @@ export function AdminMediaField({ label, urlName, keyName, altName, initialUrl, 
       setMessage("Upload is currently unavailable.");
     } finally {
       setBusy(false);
+      onBusyChange?.(false);
       if (fileInput.current) fileInput.current.value = "";
     }
   }

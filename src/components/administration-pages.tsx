@@ -1,9 +1,10 @@
+import { LeadershipPage } from "@/components/leadership-pages";
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { connection } from "next/server";
 import { SiteFooter } from "@/components/home-sections";
 import { SiteHeader } from "@/components/site-header";
-import { administrationContent, schoolContent } from "@/content/home-content";
+import { administrationContent } from "@/content/home-content";
 import { prisma } from "@/lib/prisma";
 import { $Enums } from "@/generated/prisma/client";
 
@@ -11,6 +12,7 @@ const facultyCategoryLabels: Record<string, string> = { TEACHING_FACULTY: "Teach
 
 const administrationLinks = [
   ["Overview", "/administration"],
+  ["Leadership & Management", "/leadership"],
   ["Principal", "/administration/principal"],
   ["Chairman / Director", "/administration/chairman-director"],
   ["Management", "/administration/management"],
@@ -37,34 +39,12 @@ function AdministrationLinksCta() {
 
 export function AdministrationOverviewPage() {
   const content = administrationContent.overview;
-  return <AdministrationLayout title={content.title} description={content.description} current="Overview" eyebrow="School administration"><AdministrationIntro eyebrow="01 / An overview" title={<>Leadership with<br /><em>purpose and care.</em></>} description="Administrative structures are designed to support a positive, organised and student-focused school environment."><div className="administration-overview-grid">{content.sections.map(([title, description], index) => <article className="administration-info-card" key={title}><span>0{index + 1}</span><h3>{title}</h3><p>{description}</p></article>)}</div></AdministrationIntro><section className="administration-highlight-band"><div className="container"><p className="eyebrow light">02 / Working together</p><h2>Many roles,<br /><em>one community.</em></h2><p>Official leadership and team details can be added here when they are ready to be shared.</p></div></section><AdministrationLinksCta /></AdministrationLayout>;
+  return <AdministrationLayout title={content.title} description={content.description} current="Overview" eyebrow="School administration"><AdministrationIntro eyebrow="01 / An overview" title={<>Leadership with<br /><em>purpose and care.</em></>} description="Administrative structures are designed to support a positive, organised and student-focused school environment."><div className="administration-overview-grid">{content.sections.map(([title, description], index) => <article className="administration-info-card" key={title}><span>0{index + 1}</span><h3>{title}</h3><p>{description}</p></article>)}</div></AdministrationIntro><section className="administration-highlight-band"><div className="container"><p className="eyebrow light">02 / Working together</p><h2>Many roles,<br /><em>one community.</em></h2><p>Explore messages and introductions from our school leadership.</p></div></section><Link className="button button-outline-dark" href="/leadership">Meet our leadership</Link><AdministrationLinksCta /></AdministrationLayout>;
 }
 
-async function LeadershipMessagePage({ type }: { type: "principal" | "chairman" }) {
-  await connection();
-  const settings = await prisma.schoolSetting.findUnique({ where: { id: "school" } });
-  const content = type === "principal"
-    ? { ...administrationContent.principal, name: settings?.principalName || schoolContent.principalName, profile: settings?.principalMessage || "Official Principal's Desk message pending publication." }
-    : administrationContent.chairmanDirector;
-  const current = type === "principal" ? "Principal" : "Chairman / Director";
-  const designation = type === "principal" ? (settings?.principalDesignation || schoolContent.principalDesignation) : "Chairman / Director";
-  const principalPhotoUrl = type === "principal" ? settings?.principalPhotoUrl : null;
-  const principalPhotoAlt = type === "principal" ? settings?.principalPhotoAlt : null;
-  return <AdministrationLayout title={content.title} description={content.description} current={current} eyebrow={type === "principal" ? "School leadership" : "Leadership placeholder"}><section className="administration-message-section container"><div className="administration-photo-placeholder" role="img" aria-label={principalPhotoUrl ? principalPhotoAlt || `${content.name} photo` : `${designation} photo placeholder`} style={principalPhotoUrl ? { backgroundImage: `url(${principalPhotoUrl})`, backgroundPosition: "center", backgroundSize: "cover" } : undefined}>{!principalPhotoUrl && <span>{designation} photo<br /><small>Placeholder image</small></span>}</div><article className="administration-message-copy"><p className="eyebrow">{designation}</p><p>{content.profile}</p><p>This editable profile can be replaced with the official message, background and responsibilities when available. No name or qualification has been provided for this placeholder profile.</p><div className="signature"><span className="signature-mark">ST</span><span><strong>{content.name}</strong><small>{designation}</small></span></div></article></section>{type === "principal" && <section className="academic-leadership-section"><div className="container"><p className="eyebrow">Academic leadership</p><h2>Supporting learning<br /><em>across the school.</em></h2><p>Academic leadership details can be added here to explain planning, coordination, teacher support and student-focused academic development.</p></div></section>}</AdministrationLayout>;
-}
-
-export function PrincipalAdministrationPage() {
-  return <LeadershipMessagePage type="principal" />;
-}
-
-export function ChairmanDirectorPage() {
-  return <LeadershipMessagePage type="chairman" />;
-}
-
-export function ManagementPage() {
-  const content = administrationContent.management;
-  return <AdministrationLayout title={content.title} description={content.description} current="Management"><AdministrationIntro eyebrow="01 / Management structure" title={<>Shared responsibility<br /><em>in action.</em></>} description="Positions below are editable placeholders and do not represent confirmed people or organisational facts."><div className="management-structure">{content.positions.map(([number, title, description]) => <article key={title}><span>{number}</span><div><h3>{title}</h3><p>{description}</p></div><i aria-hidden="true">↗</i></article>)}</div></AdministrationIntro><AdministrationLinksCta /></AdministrationLayout>;
-}
+export function PrincipalAdministrationPage() { return <LeadershipPage role="PRINCIPAL" />; }
+export function ChairmanDirectorPage() { return <LeadershipPage role="CHAIRMAN" />; }
+export function ManagementPage() { return <LeadershipPage />; }
 
 export async function FacultyStaffPage() {
   await connection();

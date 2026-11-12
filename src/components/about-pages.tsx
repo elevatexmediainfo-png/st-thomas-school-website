@@ -1,3 +1,4 @@
+import { LeadershipPage } from "@/components/leadership-pages";
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { connection } from "next/server";
@@ -48,25 +49,5 @@ export async function VisionMissionPage() {
   </AboutPageLayout>;
 }
 
-async function MessagePage({ type }: { type: "principal" | "chairman" }) {
-  await connection();
-  const settings = await prisma.schoolSetting.findUnique({ where: { id: "school" } });
-  const content = type === "principal"
-    ? { ...aboutContent.principalMessage, title: settings?.principalDeskTitle || schoolContent.principalDeskTitle, description: settings?.principalMessage || schoolContent.principalMessage, name: settings?.principalName || schoolContent.principalName }
-    : { ...aboutContent.chairmanMessage, description: settings?.chairmanDirectorMessage || schoolContent.chairmanDirectorMessage };
-  const designation = type === "principal" ? (settings?.principalDesignation || schoolContent.principalDesignation) : "Chairman / Director";
-  const photoUrl = type === "principal" ? settings?.principalPhotoUrl : null;
-  const photoAlt = type === "principal" ? settings?.principalPhotoAlt : null;
-  return <AboutPageLayout eyebrow={content.eyebrow} title={content.title} description="A personal note from the school leadership team. Official content can be added when available." current={type === "principal" ? "Principal's Message" : "Chairman's Message"}>
-    <section className="message-section container"><div className="message-photo" role="img" aria-label={photoUrl ? photoAlt || `${content.name} photo` : content.imageLabel} style={photoUrl ? { backgroundImage: `url(${photoUrl})`, backgroundSize: "cover", backgroundPosition: "center" } : undefined}>{!photoUrl && <span>{content.imageLabel}</span>}</div><article className="message-copy"><p className="eyebrow">{content.eyebrow}</p>{content.description.split("\n\n").map((paragraph, index) => <p key={`${index}-${paragraph}`}>{paragraph}</p>)}<div className="signature"><span className="signature-mark">ST</span><span><strong>{content.name}</strong><small>{designation}</small></span></div></article></section>
-    <section className="message-note"><div className="container"><p className="eyebrow">A note for future updates</p><h2>Official leadership content<br /><em>can live here.</em></h2></div></section>
-  </AboutPageLayout>;
-}
-
-export function PrincipalMessagePage() {
-  return <MessagePage type="principal" />;
-}
-
-export function ChairmanMessagePage() {
-  return <MessagePage type="chairman" />;
-}
+export function PrincipalMessagePage() { return <LeadershipPage role="PRINCIPAL" />; }
+export function ChairmanMessagePage() { return <LeadershipPage role="CHAIRMAN" />; }
